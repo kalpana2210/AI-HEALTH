@@ -9,7 +9,7 @@ from firebase_config import initialize_firebase, save_prediction, get_user_predi
 from firebase_admin import firestore
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "https://ai-health-1-m13x.onrender.com"}})
+CORS(app, resources={r"/predict": {"origins": "https://ai-health-1-m13x.onrender.com"}})
 
 @app.route('/')
 def home():
@@ -39,8 +39,10 @@ model = RandomForestClassifier(
 )
 model.fit(X_scaled, y)
 
-@app.route('/predict', methods=['POST'])
+@app.route('/predict', methods=['POST','OPTIONS'])
 def predict():
+    if request.method == 'OPTIONS':
+        return '',200
     try:
         data = request.get_json()
         if not data:
