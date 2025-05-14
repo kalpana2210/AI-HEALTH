@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
+import pickle
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
@@ -8,7 +9,7 @@ from firebase_config import initialize_firebase, save_prediction, get_user_predi
 from firebase_admin import firestore
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "https://ai-health-1-m13x.onrender.com"}})
 
 @app.route('/')
 def home():
