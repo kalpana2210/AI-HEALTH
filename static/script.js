@@ -67,7 +67,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
                     return tryPrediction();
                 }
-                alert("Error: Failed to fetch. Please make sure the server is running at http://127.0.0.1:5000");
+                alert("Error: Failed to fetch. Please make sure the server is running at https://ai-health-1-m13x.onrender.com");
             }
         }
 
