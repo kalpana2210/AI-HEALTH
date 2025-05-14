@@ -11,7 +11,7 @@ from firebase_admin import firestore
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "https://ai-health-1-m13x.onrender.com"}})
 
-@app.route('/predict', methods=['POST'])
+@app.route('/')
 def home():
     return render_template('index.html')
 
