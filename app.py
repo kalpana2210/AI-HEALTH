@@ -8,7 +8,7 @@ from firebase_config import initialize_firebase, save_prediction, get_user_predi
 from firebase_admin import firestore
 
 app = Flask(__name__)
-CORS(app, resources={r"/": {"origins": ""}})
+CORS(app)
 
 @app.route('/')
 def home():
