@@ -1,6 +1,5 @@
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
-import pickle
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
@@ -9,17 +8,11 @@ from firebase_config import initialize_firebase, save_prediction, get_user_predi
 from firebase_admin import firestore
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
-CORS(app, resources={r"/*": {"origins": "https://ai-health-1-m13x.onrender.com"}})
+CORS(app, resources={r"/*": {"origins": "*"}})  # Allow all origins (can be adjusted for specific frontend)
 
-# Home route to render the frontend
 @app.route('/')
 def home():
     return render_template('index.html')
-
-@app.route('/status')
-def status():
-    return "AI Health API is running. Use POST /predict to make predictions."
-
 
 # Initialize Firebase
 db = initialize_firebase()
@@ -87,17 +80,6 @@ def predict():
 
     except Exception as e:
         print(f"Error in predict endpoint: {str(e)}")
-        return jsonify({'error': str(e)}), 400
-    
-
-@app.route('/user_predictions/<user_id>', methods=['GET'])
-def get_predictions(user_id):
-    try:
-        if db:
-            predictions = get_user_predictions(db, user_id)
-            return jsonify(predictions)
-        return jsonify({'error': 'Database not initialized'}), 500
-    except Exception as e:
         return jsonify({'error': str(e)}), 400
 
 if __name__ == '__main__':
