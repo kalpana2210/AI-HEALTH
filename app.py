@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import pickle
 import numpy as np
@@ -8,9 +8,14 @@ from sklearn.ensemble import RandomForestClassifier
 from firebase_config import initialize_firebase, save_prediction, get_user_predictions
 from firebase_admin import firestore
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static', template_folder='templates')
 CORS(app, resources={r"/*": {"origins": "*"}})
-#allow all origins
+
+# Home route to render the frontend
+@app.route('/')
+def home():
+    return render_template('index.html')
+
 # Initialize Firebase
 db = initialize_firebase()
 
@@ -60,7 +65,6 @@ def predict():
         proba = model.predict_proba(features_scaled)[0]
         risk_percentage = round(proba[1] * 100, 2)
 
-        # Save to Firebase
         firebase_data = {
             'user_data': data,
             'prediction': int(prediction),
