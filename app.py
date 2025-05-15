@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
+import pickle
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
@@ -8,8 +9,9 @@ from firebase_config import initialize_firebase, save_prediction, get_user_predi
 from firebase_admin import firestore
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
-CORS(app, resources={r"/*": {"origins": "*"}})  # Allow all origins (can be adjusted for specific frontend)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
+# Home route to render the frontend
 @app.route('/')
 def home():
     return render_template('index.html')
@@ -40,7 +42,7 @@ model.fit(X_scaled, y)
 @app.route('/predict', methods=['POST', 'OPTIONS'])
 def predict():
     if request.method == 'OPTIONS':
-        return '', 200
+        return '', 200  # CORS pre-flight response
 
     try:
         data = request.get_json()
@@ -63,6 +65,7 @@ def predict():
         proba = model.predict_proba(features_scaled)[0]
         risk_percentage = round(proba[1] * 100, 2)
 
+        # Save to Firebase
         firebase_data = {
             'user_data': data,
             'prediction': int(prediction),
@@ -80,6 +83,16 @@ def predict():
 
     except Exception as e:
         print(f"Error in predict endpoint: {str(e)}")
+        return jsonify({'error': str(e)}), 400
+
+@app.route('/user_predictions/<user_id>', methods=['GET'])
+def get_predictions(user_id):
+    try:
+        if db:
+            predictions = get_user_predictions(db, user_id)
+            return jsonify(predictions)
+        return jsonify({'error': 'Database not initialized'}), 500
+    except Exception as e:
         return jsonify({'error': str(e)}), 400
 
 if __name__ == '__main__':

@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         async function tryPrediction() {
             try {
-                const response = await fetch('https://ai-health-api.onrender.com/predict', {
+                const response = await fetch('https://ai-health-1-m13x.onrender.com/predict', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -63,7 +63,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (retryCount < maxRetries) {
                     retryCount++;
                     console.log(`Retrying... Attempt ${retryCount} of ${maxRetries}`);
-                    await new Promise(resolve => setTimeout(resolve, 1000 * retryCount)); // Exponential backoff
+                    await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
                     return tryPrediction();
                 }
                 alert("Error: Failed to fetch. Please make sure the server is running at https://ai-health-1-m13x.onrender.com");
