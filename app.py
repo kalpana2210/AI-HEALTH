@@ -10,7 +10,7 @@ from firebase_admin import firestore
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
-
+#allow all origins
 # Initialize Firebase
 db = initialize_firebase()
 
