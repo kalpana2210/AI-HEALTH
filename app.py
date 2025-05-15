@@ -9,7 +9,7 @@ from firebase_config import initialize_firebase, save_prediction, get_user_predi
 from firebase_admin import firestore
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
-CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(app, resources={r"/*": {"origins": "https://ai-health-1-m13x.onrender.com"}})
 
 # Home route to render the frontend
 @app.route('/')
