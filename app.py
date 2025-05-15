@@ -16,6 +16,11 @@ CORS(app, resources={r"/*": {"origins": "https://ai-health-1-m13x.onrender.com"}
 def home():
     return render_template('index.html')
 
+@app.route('/status')
+def status():
+    return "AI Health API is running. Use POST /predict to make predictions."
+
+
 # Initialize Firebase
 db = initialize_firebase()
 
@@ -83,6 +88,7 @@ def predict():
     except Exception as e:
         print(f"Error in predict endpoint: {str(e)}")
         return jsonify({'error': str(e)}), 400
+    
 
 @app.route('/user_predictions/<user_id>', methods=['GET'])
 def get_predictions(user_id):
