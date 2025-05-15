@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 import pickle
 import numpy as np
@@ -9,12 +9,7 @@ from firebase_config import initialize_firebase, save_prediction, get_user_predi
 from firebase_admin import firestore
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "https://ai-health-1-m13x.onrender.com"}})
-
-@app.route('/')
-def home():
-    return render_template('index.html')
-
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 # Initialize Firebase
 db = initialize_firebase()
@@ -28,21 +23,22 @@ y = data.iloc[:, -1]
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
 
-# Train model with adjusted parameters
+# Train model
 model = RandomForestClassifier(
-    n_estimators=200,  # More trees
-    max_depth=10,      # Deeper trees
+    n_estimators=200,
+    max_depth=10,
     min_samples_split=5,
     min_samples_leaf=2,
-    class_weight='balanced',  # Balance the classes
+    class_weight='balanced',
     random_state=42
 )
 model.fit(X_scaled, y)
 
-@app.route('/predict', methods=['POST','OPTIONS'])
+@app.route('/predict', methods=['POST', 'OPTIONS'])
 def predict():
     if request.method == 'OPTIONS':
-        return '',200
+        return '', 200
+
     try:
         data = request.get_json()
         if not data:
@@ -58,30 +54,28 @@ def predict():
             float(data['diabetesPedigreeFunction']),
             float(data['age'])
         ]).reshape(1, -1)
-        
+
         features_scaled = scaler.transform(features)
         prediction = model.predict(features_scaled)[0]
-        
-        # Get prediction probability
         proba = model.predict_proba(features_scaled)[0]
-        risk_percentage = round(proba[1] * 100, 2)  # Probability of high risk
-        
-        # Prepare data for Firebase
+        risk_percentage = round(proba[1] * 100, 2)
+
+        # Save to Firebase
         firebase_data = {
             'user_data': data,
             'prediction': int(prediction),
             'risk_percentage': risk_percentage,
             'timestamp': firestore.SERVER_TIMESTAMP
         }
-        
-        # Save prediction to Firebase
+
         if db:
             save_prediction(db, firebase_data)
-        
+
         return jsonify({
             'prediction': int(prediction),
             'risk_percentage': risk_percentage
         })
+
     except Exception as e:
         print(f"Error in predict endpoint: {str(e)}")
         return jsonify({'error': str(e)}), 400
@@ -98,4 +92,3 @@ def get_predictions(user_id):
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
-
